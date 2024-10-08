@@ -1,0 +1,15 @@
+{
+    "name": "teacher",
+    "version": "1.0.0",
+    "scripts": {
+      "start": "node back-end/index.js",
+      "heroku-postbuild": "cd front-end/my-project && npm install && npm run build"
+    },
+    "dependencies": {
+    },
+    "engines": {
+      "node": "16.x",
+      "npm": "7.x"
+    }
+  }
+  
