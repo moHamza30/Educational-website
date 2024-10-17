@@ -7,10 +7,11 @@ const token = req.headers.authorization.split(" ")[1];
 if(!token)
     return next(new AppError("invalid token",400))
 const {id} = jwt.verify(token,process.env.JWT_SECRET)
-const user = await User.findOne({_id:id})
-if (!user)
+const populatedUser = await User.findById(id).populate('bookedCourses');
+
+if (!populatedUser)
     return next(new AppError("user not exist",400))
-req.user = user
+req.user = populatedUser
 next()
 }
 

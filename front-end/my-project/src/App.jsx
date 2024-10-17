@@ -21,12 +21,13 @@ import CreateUser from "./components/admin-dashboard/CreateUser";
 import AddCourse from "./components/admin-dashboard/addCourse";
 import EditCourse from "./components/admin-dashboard/EditCourse";
 import Homework from "./components/Homework";
-import {loadStripe} from '@stripe/stripe-js';
-import {Elements} from '@stripe/react-stripe-js';
+import { loadStripe } from "@stripe/stripe-js";
+import { Elements } from "@stripe/react-stripe-js";
+import CheckoutForm from "./components/CheckOutForm";
+import SeeVideo from "./components/SeeVideo";
 
-const stripePromise = loadStripe(process.env.STRIPE_KEY);
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_KEY);
 const App = () => {
-
   const { userToEdit } = useContext(User_Context);
   const location = useLocation();
 
@@ -41,7 +42,14 @@ const App = () => {
         <Route path="/login" element={<Login />} />
         <Route path="/monthsList/:grade" element={<MonthsList />} />
         <Route path="/courseDetails/:courseId" element={<CourseDetails />} />
-        <Route path="/course/:courseId/weeks/:weekId/lecs/:lecId/homework" element={<Homework />} />
+        <Route path="/seeVideo" element={<SeeVideo />} />
+      
+        <Route
+          path="/course/:courseId/weeks/:weekId/lecs/:lecId/homework"
+          element={<Homework />}
+        />
+        <Route path="/checkoutForm" element={<CheckoutForm />} />
+
         <Route path="/admin-dashboard" element={<AdminDashboard />}>
           <Route index element={<Users />} />
           <Route path="users" element={<Users />} />

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import axios from "axios";
 import { IoIosCloseCircle } from "react-icons/io";
 
@@ -14,7 +14,7 @@ const AddCourse = () => {
       lectures: [
         {
           title: "",
-          videoUrl: "",
+          video: null,
           homework: {
             title: "",
             questions: [
@@ -71,6 +71,14 @@ const AddCourse = () => {
     setWeeks(newWeeks);
   };
 
+  // const fileInputRef = useRef(null);
+
+  const handleFileChange = (weekIndex, lectureIndex, e) => {
+    const newWeeks = [...weeks];
+    newWeeks[weekIndex].lectures[lectureIndex].video = e.target.files[0];
+    setWeeks(newWeeks);
+  };
+
   // Option change handler
   const handleOptionChange = (
     weekIndex,
@@ -86,7 +94,6 @@ const AddCourse = () => {
       e.target.name === "isCorrect" ? e.target.checked : e.target.value;
     setWeeks(newWeeks);
   };
-
   // Add new week
   const addWeek = () => {
     setWeeks([
@@ -97,7 +104,7 @@ const AddCourse = () => {
         lectures: [
           {
             title: "",
-            videoUrl: "",
+            video: null,
             homework: {
               title: "",
               questions: [
@@ -124,7 +131,7 @@ const AddCourse = () => {
     const newWeeks = [...weeks];
     newWeeks[weekIndex].lectures.push({
       title: "",
-      videoUrl: "",
+      video: null,
       homework: {
         title: "",
         questions: [
@@ -134,10 +141,8 @@ const AddCourse = () => {
     });
     setWeeks(newWeeks);
   };
-
-  
   const removeLecture = (weekIndex, lecIndex) => {
-    setWeeks(prevWeeks => {
+    setWeeks((prevWeeks) => {
       const newWeeks = [...prevWeeks];
       newWeeks[weekIndex].lectures = newWeeks[weekIndex].lectures.filter(
         (_, i) => i !== lecIndex
@@ -145,7 +150,7 @@ const AddCourse = () => {
       return newWeeks;
     });
   };
-  
+
   // Add new question
   const addQuestion = (weekIndex, lectureIndex) => {
     const newWeeks = [...weeks];
@@ -157,16 +162,16 @@ const AddCourse = () => {
   };
 
   const removeQuestion = (weekIndex, lectureIndex, questionIndex) => {
-    setWeeks(prevWeeks => {
+    setWeeks((prevWeeks) => {
       const newWeeks = [...prevWeeks];
-      newWeeks[weekIndex].lectures[lectureIndex].homework.questions = 
-        newWeeks[weekIndex].lectures[lectureIndex].homework.questions.filter(
-          (_, i) => i !== questionIndex
-        );
+      newWeeks[weekIndex].lectures[lectureIndex].homework.questions = newWeeks[
+        weekIndex
+      ].lectures[lectureIndex].homework.questions.filter(
+        (_, i) => i !== questionIndex
+      );
       return newWeeks;
     });
   };
-  
 
   // Add new option
   const addOption = (weekIndex, lectureIndex, questionIndex) => {
@@ -177,40 +182,57 @@ const AddCourse = () => {
     setWeeks(newWeeks);
   };
 
-  const removeOption = (weekIndex, lectureIndex, questionIndex, optionIndex) => {
+  const removeOption = (
+    weekIndex,
+    lectureIndex,
+    questionIndex,
+    optionIndex
+  ) => {
     const newWeeks = [...weeks];
-  
+
     // Remove the option at the given optionIndex from the options array
     newWeeks[weekIndex].lectures[lectureIndex].homework.questions[
       questionIndex
     ].options = newWeeks[weekIndex].lectures[lectureIndex].homework.questions[
       questionIndex
     ].options.filter((option, i) => i !== optionIndex);
-  
+
     // Update the state with the modified weeks array
     setWeeks(newWeeks);
   };
-  
 
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    const courseData = {
-      title,
-      description,
-      grade,
-      price,
-      weeks: weeks,
-    };
-    console.log(weeks);
-    console.log(courseData);
+    const formData = new FormData();
+    formData.append("title", title);
+    formData.append("description", description);
+    formData.append("grade", grade);
+    formData.append("price", price);
+    formData.append("weeks", JSON.stringify(weeks));
+    weeks.forEach((week, weekIndex) => {
+      week.lectures.forEach((lecture, lectureIndex) => {
+        if (lecture.video) {
+          formData.append(`video_${weekIndex}_${lectureIndex}`, lecture.video); // Append file to FormData
+        }
+      });
+    });
+    // const courseData = {
+    //   title,
+    //   description,
+    //   grade,
+    //   price,
+    //   weeks: weeks,
+    // };
+    // console.log(weeks);
+    // console.log(courseData);
     try {
       const response = await axios.post(
         "http://localhost:8000/courses",
-        courseData
+        formData
       );
       console.log(response);
+      console.log(formData);
       // Reset form
       setTitle("");
       setDescription("");
@@ -223,7 +245,7 @@ const AddCourse = () => {
           lectures: [
             {
               title: "",
-              videoUrl: "",
+              videoUrl: null,
               homework: {
                 title: "",
                 questions: [
@@ -386,15 +408,13 @@ const AddCourse = () => {
               {/* Lecture Video URL */}
               <div className="mb-2">
                 <input
-                  type="text"
-                  name="videoUrl"
-                  placeholder="Video URL"
-                  value={lecture.videoUrl}
+                  type="file"
+                  name="video"
+                  placeholder="Video "
                   onChange={(e) =>
-                    handleLectureChange(weekIndex, lectureIndex, e)
+                    handleFileChange(weekIndex, lectureIndex, e)
                   }
                   className="p-3 rounded bg-gray-500 border border-gray-400 w-full"
-                  //   required
                 />
               </div>
 
@@ -451,29 +471,12 @@ const AddCourse = () => {
                   {/* Options */}
                   {question.options.map((option, optionIndex) => (
                     <div key={optionIndex} className="flex items-center ">
-                      <div  className="flex flex-1 items-center mb-2">
-                      <input
-                        type="text"
-                        name="text"
-                        placeholder="Option Text"
-                        value={option.text}
-                        onChange={(e) =>
-                          handleOptionChange(
-                            weekIndex,
-                            lectureIndex,
-                            questionIndex,
-                            optionIndex,
-                            e
-                          )
-                        }
-                        className="p-2 rounded bg-gray-300 border border-gray-200 w-9/12 mr-2"
-                        // required
-                      />
-                      <label className="flex items-center text-sm">
+                      <div className="flex flex-1 items-center mb-2">
                         <input
-                          type="checkbox"
-                          name="isCorrect"
-                          checked={option.isCorrect}
+                          type="text"
+                          name="text"
+                          placeholder="Option Text"
+                          value={option.text}
                           onChange={(e) =>
                             handleOptionChange(
                               weekIndex,
@@ -483,15 +486,39 @@ const AddCourse = () => {
                               e
                             )
                           }
-                          className="mr-2"
+                          className="p-2 rounded bg-gray-300 border border-gray-200 w-9/12 mr-2"
+                          // required
                         />
-                        Is Correct
-                      </label>
-                    </div>
-                    <IoIosCloseCircle
-                     onClick={()=>removeOption(weekIndex,lectureIndex,questionIndex,optionIndex)} 
-                     className="text-2xl" />
-
+                        <label className="flex items-center text-sm">
+                          <input
+                            type="checkbox"
+                            name="isCorrect"
+                            checked={option.isCorrect}
+                            onChange={(e) =>
+                              handleOptionChange(
+                                weekIndex,
+                                lectureIndex,
+                                questionIndex,
+                                optionIndex,
+                                e
+                              )
+                            }
+                            className="mr-2"
+                          />
+                          Is Correct
+                        </label>
+                      </div>
+                      <IoIosCloseCircle
+                        onClick={() =>
+                          removeOption(
+                            weekIndex,
+                            lectureIndex,
+                            questionIndex,
+                            optionIndex
+                          )
+                        }
+                        className="text-2xl"
+                      />
                     </div>
                   ))}
 

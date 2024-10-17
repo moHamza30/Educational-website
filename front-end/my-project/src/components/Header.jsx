@@ -7,6 +7,7 @@ import { User_Context } from "../Contexts/UserContext";
 
 const Header = () => {
   const { user, setUser } = useContext(User_Context);
+  console.log(user)
   const navigate = useNavigate();
   const [showList, setShowList] = useState(false);
   return (
@@ -51,7 +52,7 @@ const Header = () => {
             <Link to="/admin-dashboard">log out</Link>
           </div>
         )}
-        {user?.role === "Admin" && (
+        {user?.data?.role === "Admin" && (
           <div className="text-lg font-semibold bg-primary rounded-md px-4 py-2">
             <Link to="/admin-dashboard">admin Dashboard</Link>
           </div>

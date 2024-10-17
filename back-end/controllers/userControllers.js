@@ -33,19 +33,24 @@ const getAllUsers = async (req, res, next) => {
   if (!users) return next(new AppError("users not found", 404));
   res.status(200).json(users);
 };
-// const getUser = async (req, res, next) => {
-//   const userId = req.params.id;
-//   const user = await User.findById(userId);
 
-//   if (!user) {
-//     return next(new AppError("User not found.", 404));
-//   }
-//   res.status(200).json({ data: user });
-// };
 const getprofile = async (req, res, next) => {
   const { user } = req;
   res.status(200).send({ data: user });
 };
+
+const bookCourse = async(req,res,next)=>{
+  const {courseId} = req.body
+  const id = req.user.id
+   console.log(id)
+  const updatedUser = await User.findByIdAndUpdate(id,
+    { $addToSet: { bookedCourses: courseId } } // do not add again if it is exist
+  )
+  if(!updatedUser){
+    return next(new AppError("user not found",404))
+  }
+  res.status(200).json({data:updatedUser})
+}
 
 const EditUser = async (req, res, next) => {
   const { id } = req.params;
@@ -72,4 +77,5 @@ module.exports = {
   getAllUsers,
   EditUser,
   deleteUser,
+  bookCourse
 };

@@ -6,7 +6,7 @@ const { stack } = require("../routes/CoursesRoutes");
 const lectureSchema = new mongoose.Schema(
   {
     title: { type: String },
-    videoUrl: { type: String },
+    video: { type: String },
     homework: {type: mongoose.Schema.Types.ObjectId,ref: "Homework"},
   },
   { timestamps: true },

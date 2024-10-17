@@ -61,6 +61,10 @@ const EditCourse = () => {
     setWeeks(newWeeks);
   };
 
+  const handleFileChange = (weekIndex, lectureIndex, e)=>{
+    const newWeeks = [...weeks];
+    newWeeks[weekIndex].lectures[lectureIndex].video = e.target.files[0]
+  }
   // Homework title change handler
   const handleHomeworkTitleChange = (weekIndex, lectureIndex, e) => {
     const newWeeks = [...weeks];
@@ -103,7 +107,7 @@ const EditCourse = () => {
         lectures: [
           {
             title: "",
-            videoUrl: "",
+            video: "",
             homework: {
               title: "",
               questions: [
@@ -131,7 +135,7 @@ const EditCourse = () => {
     const newWeeks = [...weeks];
     newWeeks[weekIndex].lectures.push({
       title: "",
-      videoUrl: "",
+      video: "",
       homework: {
         title: "",
         questions: [
@@ -198,19 +202,30 @@ const EditCourse = () => {
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    const courseData = {
-      title,
-      description,
-      grade,
-      weeks: weeks,
-    };
+    const formData = new FormData();
+    formData.append("title",title)
+    formData.append("description",description)
+    formData.append("grade",grade)
+    formData.append("weeks", JSON.stringify(weeks))
+    weeks.forEach((week,weekIndex)=>{
+      week.lectures.forEach((lecture,lectureIndex)=>{
+       if(lecture.video){
+        formData.append(`video_${weekIndex}_${lectureIndex}`,lecture.video)
+       }
+      })
+    })
+    // const courseData = {
+    //   title,
+    //   description,
+    //   grade,
+    //   weeks: weeks,
+    // };
     console.log(weeks);
-    console.log(courseData);
+    // console.log(courseData);
     try {
       const response = await axios.put(
         `http://localhost:8000/courses/${editedCourse._id}`,
-        courseData
+        formData
       );
       console.log(response);
       // Reset form
@@ -225,7 +240,7 @@ const EditCourse = () => {
           lectures: [
             {
               title: "",
-              videoUrl: "",
+              video: null,
               homework: {
                 title: "",
                 questions: [
@@ -428,12 +443,11 @@ const EditCourse = () => {
                   {/* Lecture Video URL */}
                   <div className="mb-2">
                     <input
-                      type="text"
-                      name="videoUrl"
+                      type="file"
+                      name="video"
                       placeholder="Video URL"
-                      value={lecture.videoUrl}
                       onChange={(e) =>
-                        handleLectureChange(weekIndex, lectureIndex, e)
+                        handleFileChange(weekIndex, lectureIndex, e)
                       }
                       className="p-3 rounded bg-gray-500 border border-gray-400 w-full"
                       //   required

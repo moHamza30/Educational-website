@@ -43,6 +43,10 @@ const userSchema = new mongoose.Schema({
     default: "user",
     required: true,
   },
+  bookedCourses: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Course', 
+}],
 });
 
 userSchema.pre("save", async function () {

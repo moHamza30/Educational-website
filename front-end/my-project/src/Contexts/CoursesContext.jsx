@@ -15,7 +15,6 @@ const CoursesContext = ({ children }) => {
     axios
       .get("http://localhost:8000/courses")
       .then((res) => {
-        console.log(res.data);
         localStorage.setItem("courses", JSON.stringify(res.data));
         setCourses(res.data);
       })

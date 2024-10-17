@@ -2,7 +2,6 @@ import React, { useContext, useState } from "react";
 import { IoIosArrowDown } from "react-icons/io";
 import { BiSolidLeftArrow } from "react-icons/bi";
 import { Link, useNavigate } from "react-router-dom";
-import { Courses_Context } from "../Contexts/CoursesContext";
 import { User_Context } from "../Contexts/UserContext";
 
 const Weeks = ({ weeks, courseId }) => {
@@ -21,7 +20,15 @@ const Weeks = ({ weeks, courseId }) => {
       setOpenWeeks(openWeeks.filter((i) => i !== index));
     } else setOpenWeeks([...openWeeks, index]);
   };
+  const isBooked = user?.data.bookedCourses?.some((course) => {
+    return course === courseId;
+  });
 
+  console.log(weeks);
+  console.log(courseId);
+  console.log(isBooked);
+  console.log(user.data.bookedCourses);
+  console.log(user);
   return (
     <div className="py-4">
       <h1 className="text-4xl font-bold my-10">محتوى الكورس</h1>
@@ -85,7 +92,18 @@ const Weeks = ({ weeks, courseId }) => {
                         <div className={` p-4 bg-gray-300 rounded-md`}>
                           <div className="underline font-semibold flex items-center gap-3">
                             <BiSolidLeftArrow />
-                            <Link> مشاهدة الفديو </Link>
+                            {isBooked ? (
+                              <Link
+                                to="/seeVideo"
+                                state={lecture.video
+                                }
+                              >
+                                مشاهدة الفديو
+                              </Link>
+                   
+                            ) : (
+                              <p>يجب شراء الكورس لتتمكن من مشاهدة الدرس</p>
+                            )}
                           </div>
                           <div className="underline font-semibold flex items-center gap-3">
                             <BiSolidLeftArrow />
@@ -97,7 +115,7 @@ const Weeks = ({ weeks, courseId }) => {
                                 الواجب
                               </Link>
                             ) : (
-                              <Link to="/login" >الواجب</Link>
+                              <Link to="/login">الواجب</Link>
                             )}
                           </div>
                         </div>
@@ -111,6 +129,7 @@ const Weeks = ({ weeks, courseId }) => {
           </ul>
         ))
       )}
+    
     </div>
   );
 };

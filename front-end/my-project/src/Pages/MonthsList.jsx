@@ -4,6 +4,7 @@ import SBanner from "../components/SBanner";
 import FBanner from "../components/FBanner";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { Courses_Context } from "../Contexts/CoursesContext";
+import axios from "axios";
 
 const MonthsList = () => {
   const navigate = useNavigate();
@@ -13,7 +14,13 @@ const MonthsList = () => {
   const goToCourse = (courseId) => {
     navigate(`/courseDetails/${courseId}`);
   };
-
+  const bookCourse = (amount,courseId)=>{
+    axios.post("http://localhost:8000/create-payment-intent",{amount})
+    .then((res)=>{
+      console.log(res)
+      navigate("/checkoutForm",{state:{clientSecret:res.data.clientSecret,courseId}})
+    }).catch((err)=>console.log(err))
+  }
   return (
     <div className="mt-[85px]">
       <FBanner />
@@ -51,15 +58,15 @@ const MonthsList = () => {
               <div className="flex gap-2">
                 <Link
                   to={`/courseDetails/${course._id}`}
-                  className=" px-4 py-2 hover:bg-blue-500 hover:text-white
+                  className=" px-4 py-2 text-center hover:bg-blue-500 hover:text-white
                  rounded-full border-2 border-blue-500"
                 >
                   الدخول للكورس
                 </Link>
                 <button
-                onClick={()=>navigate("/register")}
-                 className="px-4 py-2 bg-primary rounded-full hover:scale-105 duration-300 ">
-                  اشترك الان{" "}
+                onClick={()=>bookCourse(course.price,course._id)}
+                 className="px-4 py-2 text-center bg-primary rounded-full hover:scale-105 duration-300 ">
+                  اشترى الان{" "}
                 </button>
               </div>
             </div>
